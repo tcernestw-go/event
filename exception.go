@@ -18,7 +18,6 @@ type Exception struct {
 	Attachment interface{} `json:"attachment" bson:"attachment"`
 	Time       int64       `json:"time" bson:"time"`
 	Traces     []Trace     `json:"traces" bson:"traces"`
-	Exist      bool        `json:"exist" bson:"exist"`
 }
 
 // Trace contains details of programming line
@@ -29,19 +28,29 @@ type Trace struct {
 }
 
 // NewException returns exception with specific error details
+// If error is nil, the exception
 func NewException(remark string, err error, attachment interface{}) (exc Exception) {
+	exc = Exception{
+		ID:         uuid.NewV4().String(),
+		Remark:     remark,
+		Attachment: attachment,
+		Time:       moment.Now().UnixMillis(),
+		Traces:     GetTraces(1),
+	}
 	if err != nil {
-		exc = Exception{
-			ID:         uuid.NewV4().String(),
-			Err:        err.Error(),
-			Remark:     remark,
-			Attachment: attachment,
-			Time:       moment.Now().UnixMillis(),
-			Traces:     GetTraces(1),
-			Exist:      true,
-		}
+		exc.Err = err.Error()
 	}
 	return
+}
+
+// HasErr checks if the exception contains any error
+func (exc Exception) HasErr() (has bool) {
+	return exc.Err != ""
+}
+
+// Error returns the err in "error"
+func (exc Exception) Error() (err error) {
+	return errors.New(exc.Err)
 }
 
 // Log logs the details of exception
@@ -81,7 +90,7 @@ func LogTraces(traces []Trace) (logs []string) {
 	return
 }
 
-// Recover get the panic content as error content
+// Recover get the panic content as error, and create a exception
 func Recover(exc *Exception, msg string, attachment interface{}) {
 	if r := recover(); r != nil && exc != nil {
 		*exc = NewException(msg, errors.New(fmt.Sprint(r)), attachment)
