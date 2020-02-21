@@ -53,3 +53,36 @@ Exception(normal_case_id)
 		})
 	}
 }
+
+func TestException_HasErr(t *testing.T) {
+	type fields struct {
+		ID         string
+		Err        error
+		Remark     string
+		Attachment interface{}
+		Time       int64
+		Traces     []Trace
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		wantHas bool
+	}{
+		// TODO: Add test cases.
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			exc := Exception{
+				ID:         tt.fields.ID,
+				Err:        tt.fields.Err,
+				Remark:     tt.fields.Remark,
+				Attachment: tt.fields.Attachment,
+				Time:       tt.fields.Time,
+				Traces:     tt.fields.Traces,
+			}
+			if gotHas := exc.HasErr(); gotHas != tt.wantHas {
+				t.Errorf("Exception.HasErr() = %v, want %v", gotHas, tt.wantHas)
+			}
+		})
+	}
+}

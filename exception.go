@@ -37,6 +37,7 @@ func NewException(remark string, err error, attachment interface{}) (exc Excepti
 		Attachment: attachment,
 		Time:       moment.Now().UnixMillis(),
 		Traces:     GetTraces(1),
+		Err:        err,
 	}
 	return
 }
